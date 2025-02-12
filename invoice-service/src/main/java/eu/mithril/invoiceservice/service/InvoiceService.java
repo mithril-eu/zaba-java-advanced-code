@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import eu.mithril.invoiceservice.model.Invoice;
@@ -17,15 +18,17 @@ public class InvoiceService {
 
     private final UserService userService;
     private final String pdfUrl;
+    private final JdbcTemplate jdbcTemplate;
 
     List<Invoice> invoices = new CopyOnWriteArrayList<>();
 
     public InvoiceService(
             UserService userService,
-            @Value("${pdf.url}") String pdfUrl
+            @Value("${pdf.url}") String pdfUrl, JdbcTemplate jdbcTemplate
     ) {
         this.userService = userService;
         this.pdfUrl = pdfUrl;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @PostConstruct
@@ -40,7 +43,16 @@ public class InvoiceService {
 
 
     public List<Invoice> findAll() {
-        return invoices;
+        String query = "select id, user_id, pdf_url, amount from invoices";
+
+        return jdbcTemplate.query(query, (rs, rowNum) -> {
+            var invoice = new Invoice();
+            invoice.setId(rs.getObject("id").toString());
+            invoice.setPdfUrl(rs.getString("pdf_url"));
+            invoice.setUserId(rs.getString("user_id"));
+            invoice.setAmount(rs.getInt("amount"));
+            return invoice;
+        });
     }
 
     public Invoice create(String userId, Integer amount) {

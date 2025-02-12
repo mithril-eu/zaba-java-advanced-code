@@ -1,9 +1,13 @@
 package eu.mithril.invoiceservice.context;
 
+import javax.sql.DataSource;
+
+import org.h2.jdbcx.JdbcDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -19,6 +23,20 @@ import eu.mithril.invoiceservice.ApplicationLauncher;
 @PropertySource("classpath:/application.properties")
 @PropertySource(value = "classpath:/application-${spring.profiles.active}.properties", ignoreResourceNotFound = true)
 public class InvoiceApplicationConfiguration {
+
+    @Bean
+    public DataSource dataSource() {
+        JdbcDataSource dataSource = new JdbcDataSource();
+        dataSource.setURL("jdbc:h2:~/myFirstH2Db;INIT=RUNSCRIPT FROM 'classpath:schema.sql'");
+        dataSource.setUser("sa");
+        dataSource.setPassword("sa");
+        return dataSource;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate() {
+        return new JdbcTemplate(dataSource());
+    }
 
     @Bean
     public ObjectMapper objectMapper() {
@@ -39,12 +57,14 @@ public class InvoiceApplicationConfiguration {
         viewResolver.setOrder(1);
         return viewResolver;
     }
+
     @Bean
     public SpringTemplateEngine springTemplateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.setTemplateResolver(templateResolver());
         return templateEngine;
     }
+
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver resolver = new SpringResourceTemplateResolver();

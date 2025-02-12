@@ -37,4 +37,19 @@ public class Invoice {
         return amount;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public void setPdfUrl(String pdfUrl) {
+        this.pdfUrl = pdfUrl;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
 }
