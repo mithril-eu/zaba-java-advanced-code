@@ -8,9 +8,6 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 
 import eu.mithril.invoiceservice.context.InvoiceApplicationConfiguration;
-import eu.mithril.invoiceservice.service.InvoiceService;
-import eu.mithril.invoiceservice.service.UserService;
-import eu.mithril.invoiceservice.web.InvoiceServlet;
 
 public class ApplicationLauncher {
 
