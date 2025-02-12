@@ -25,12 +25,15 @@ public class InvoiceServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        ApplicationContext ctx = new AnnotationConfigApplicationContext(
+        var ctx = new AnnotationConfigApplicationContext(
                 InvoiceApplicationConfiguration.class
         );
+
+        ctx.registerShutdownHook();
         this.userService = ctx.getBean(UserService.class);
         this.invoiceService = ctx.getBean(InvoiceService.class);
         this.objectMapper = ctx.getBean(ObjectMapper.class);
+
     }
 
     @Override

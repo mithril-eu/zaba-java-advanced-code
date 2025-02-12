@@ -4,7 +4,12 @@ import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.startup.Tomcat;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
+import eu.mithril.invoiceservice.context.InvoiceApplicationConfiguration;
+import eu.mithril.invoiceservice.service.InvoiceService;
+import eu.mithril.invoiceservice.service.UserService;
 import eu.mithril.invoiceservice.web.InvoiceServlet;
 
 public class ApplicationLauncher {
@@ -14,8 +19,17 @@ public class ApplicationLauncher {
         tomcat.setPort(8080);
         tomcat.getConnector();
 
-        Context ctx = tomcat.addContext("", null);
-        Wrapper servlet = Tomcat.addServlet(ctx, "invoiceServlet", new InvoiceServlet());
+        Context tomcatCtx = tomcat.addContext("", null);
+
+        var webCtx = new AnnotationConfigWebApplicationContext();
+        webCtx.register(InvoiceApplicationConfiguration.class);
+        webCtx.setServletContext(tomcatCtx.getServletContext());
+        webCtx.refresh();
+        webCtx.registerShutdownHook();
+
+        DispatcherServlet dispatcherServlet = new DispatcherServlet(webCtx);
+
+        Wrapper servlet = Tomcat.addServlet(tomcatCtx, "dispatcherServlet", dispatcherServlet);
         servlet.setLoadOnStartup(1);
         servlet.addMapping("/*");
 
