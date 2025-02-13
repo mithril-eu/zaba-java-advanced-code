@@ -41,12 +41,9 @@ public class InvoiceController {
         return invoiceService.create(userId, amount);
     }
 
-    @PostMapping("/invoices/{userId}/{amount}")
-    public Invoice createInvoicePath(
-            @PathVariable("userId") String userId,
-            @PathVariable("amount") Integer amount
-    ) {
-        return invoiceService.create(userId, amount);
+    @GetMapping("/invoices/{userId}")
+    public List<Invoice>  invoicesForUser(@PathVariable("userId") String userId) {
+        return invoiceService.findByUserId(userId);
     }
 
     @PostMapping("/invoices/dto")

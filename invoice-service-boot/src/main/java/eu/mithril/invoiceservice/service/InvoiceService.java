@@ -3,9 +3,9 @@ package eu.mithril.invoiceservice.service;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -15,6 +15,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import eu.mithril.invoiceservice.model.Invoice;
 import eu.mithril.invoiceservice.model.User;
+import eu.mithril.invoiceservice.repository.InvoiceRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
@@ -23,16 +24,16 @@ public class InvoiceService {
 
     private final UserService userService;
     private final String pdfUrl;
-    private final JdbcTemplate jdbcTemplate;
+    private final InvoiceRepository invoiceRepository;
 
     public InvoiceService(
             UserService userService,
             @Value("${pdf.url}") String pdfUrl,
-            JdbcTemplate jdbcTemplate
+            InvoiceRepository invoiceRepository
     ) {
         this.userService = userService;
         this.pdfUrl = pdfUrl;
-        this.jdbcTemplate = jdbcTemplate;
+        this.invoiceRepository = invoiceRepository;
     }
 
     @PostConstruct
@@ -50,16 +51,13 @@ public class InvoiceService {
     public List<Invoice> findAll() {
         System.out.println("database transaction open=" +
                            TransactionSynchronizationManager.isActualTransactionActive());
-        String query = "select id, user_id, pdf_url, amount from invoices";
+        return StreamSupport.stream(invoiceRepository.findAll().spliterator(), false).toList();
+    }
 
-        return jdbcTemplate.query(query, (rs, rowNum) -> {
-            var invoice = new Invoice();
-            invoice.setId(rs.getObject("id").toString());
-            invoice.setPdfUrl(rs.getString("pdf_url"));
-            invoice.setUserId(rs.getString("user_id"));
-            invoice.setAmount(rs.getInt("amount"));
-            return invoice;
-        });
+    public List<Invoice> findByUserId(String userId) {
+        var lestThan =  StreamSupport.stream(invoiceRepository.findByAmountIsLessThan(50).spliterator(), false).toList();
+        System.out.println(lestThan);
+        return StreamSupport.stream(invoiceRepository.findByUserId(userId).spliterator(), false).toList();
     }
 
     public Invoice create(String userId, Integer amount) {
@@ -67,26 +65,9 @@ public class InvoiceService {
                            TransactionSynchronizationManager.isActualTransactionActive());
         User user = userService.findById(userId);
         Optional.ofNullable(user).orElseThrow(IllegalStateException::new);
-
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        String insert = """
-                insert into invoices (user_id, pdf_url, amount)
-                values (?, ?, ?)
-                """;
-
-        jdbcTemplate.update(connection -> {
-            var ps = connection.prepareStatement(insert, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, userId);
-            ps.setString(2, pdfUrl);
-            ps.setInt(3, amount);
-            return ps;
-        }, keyHolder);
-
-        String uuid = !keyHolder.getKeys().isEmpty() ?
-                keyHolder.getKeys().values().iterator().next().toString()
-                : null;
-
-        return new Invoice(uuid, userId, pdfUrl, amount);
+        Invoice invoice = new Invoice(userId, pdfUrl, amount);
+        invoiceRepository.save(invoice);
+        return invoice;
     }
 
 }

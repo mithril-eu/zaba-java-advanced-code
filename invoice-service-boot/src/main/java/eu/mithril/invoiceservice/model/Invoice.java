@@ -1,8 +1,14 @@
 package eu.mithril.invoiceservice.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Table;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@Table("INVOICES")
 public class Invoice {
+
+    @Id
     private String id;
     @JsonProperty("user_id")
     private String userId;
@@ -12,8 +18,7 @@ public class Invoice {
 
     public Invoice() {
     }
-    public Invoice(String id, String userId, String pdfUrl, Integer amount) {
-        this.id = id;
+    public Invoice(String userId, String pdfUrl, Integer amount) {
         this.userId = userId;
         this.pdfUrl = pdfUrl;
         this.amount = amount;
