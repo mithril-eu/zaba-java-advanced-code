@@ -49,6 +49,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>eu.mithril</groupId>
+			<artifactId>invoice-spring-boot-starter</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.vibur</groupId>
+			<artifactId>vibur-dbcp</artifactId>
+			<version>26.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
