@@ -1,7 +1,5 @@
 package eu.mithril.invoiceservice.model;
 
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Invoice {
