@@ -55,8 +55,6 @@ public class InvoiceService {
     }
 
     public List<Invoice> findByUserId(String userId) {
-        var lestThan =  StreamSupport.stream(invoiceRepository.findByAmountIsLessThan(50).spliterator(), false).toList();
-        System.out.println(lestThan);
         return StreamSupport.stream(invoiceRepository.findByUserId(userId).spliterator(), false).toList();
     }
 

@@ -8,6 +8,7 @@ import eu.mithril.invoiceservice.model.Invoice;
 public interface InvoiceRepository extends CrudRepository<Invoice, String> {
 
     Iterable<Invoice> findByUserId(@Param("userId") String userId);
-    Iterable<Invoice> findByUserIdAndAmountIsLessThan(@Param("amount") Integer amount);
+
+    Iterable<Invoice> findByAmountIsLessThan(Integer amountIsLessThan);
 
 }
