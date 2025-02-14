@@ -1,13 +1,10 @@
 package eu.mithril.invoiceservice.service;
 
-import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +13,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import eu.mithril.invoiceservice.model.Invoice;
 import eu.mithril.invoiceservice.model.User;
 import eu.mithril.invoiceservice.repository.InvoiceRepository;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 
 @Component
 public class InvoiceService {
@@ -36,17 +31,6 @@ public class InvoiceService {
         this.invoiceRepository = invoiceRepository;
     }
 
-    @PostConstruct
-    public void mama() {
-        System.out.println("Fetching pdf from external service");
-    }
-
-    @PreDestroy
-    public void shutdown() {
-        System.out.println("cleaning open resources");
-    }
-
-
     @Transactional(isolation = Isolation.SERIALIZABLE)
     public List<Invoice> findAll() {
         System.out.println("database transaction open=" +
@@ -64,8 +48,7 @@ public class InvoiceService {
         User user = userService.findById(userId);
         Optional.ofNullable(user).orElseThrow(IllegalStateException::new);
         Invoice invoice = new Invoice(userId, pdfUrl, amount);
-        invoiceRepository.save(invoice);
-        return invoice;
+        return invoiceRepository.save(invoice);
     }
 
 }
